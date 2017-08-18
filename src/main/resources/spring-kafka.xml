@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:int="http://www.springframework.org/schema/integration"
+	   xmlns:int-kafka="http://www.springframework.org/schema/integration/kafka"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						   http://www.springframework.org/schema/integration
+						   http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+	   					   http://www.springframework.org/schema/integration/kafka
+						   http://www.springframework.org/schema/integration/kafka/spring-integration-kafka-1.1.xsd
+						   http://www.springframework.org/schema/task
+						   http://www.springframework.org/schema/task/spring-task.xsd">
+	<!-- Producer通道 -->
+	<int:channel id="outToKafka">
+		<int:queue/>
+	</int:channel>
+    <!-- Consumer通道 -->
+    <!--<int:channel id="inputFromKafka">
+        <int:queue/>
+    </int:channel>-->
+    <!-- zookeeper配置 -->
+    <int-kafka:zookeeper-connect id="zookeeperConnect"
+		zk-connect="${kafka.zk-connect}"
+		zk-connection-timeout="6000" zk-session-timeout="6000" zk-sync-time="200" />
+	<!-- producerContext配置 f--><!-- none,gzip,snappy -->
+	<int-kafka:producer-context id="kafkaProducerContext" producer-properties="producerProperties">
+		<int-kafka:producer-configurations>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_merchant" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"></int-kafka:producer-configuration>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_wangdian" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_qvdao" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_terminal" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_agent" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_posparter" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+			<int-kafka:producer-configuration
+					broker-list="${kafka.broker-list}"
+					topic="apay_tmsmessage" key-class-type="java.lang.String" key-encoder="kafkaEncoder"
+					value-class-type="java.lang.String" value-encoder="kafkaEncoder"
+					partitioner="kafka_partitioner" compression-codec="gzip" async="true" batch-num-messages="10000"/>
+		</int-kafka:producer-configurations>
+	</int-kafka:producer-context>
+
+	<!-- ConsumerContext配置 s-->
+	<!--<int-kafka:consumer-context id="consumerContext"
+		consumer-timeout="100" zookeeper-connect="zookeeperConnect" consumer-properties="consumerProperties">
+		<int-kafka:consumer-configurations>
+			<int-kafka:consumer-configuration
+				group-id="${kafka.group-id}" max-messages="20000"
+				value-decoder="kafkaDecoder" key-decoder="kafkaDecoder">
+				<int-kafka:topic id="apay_ticketnumber" streams="1" />
+				<int-kafka:topic id="apay_wangdian" streams="1" />
+				<int-kafka:topic id="apay_branch" streams="1" />
+				<int-kafka:topic id="apay_ticketqvdao" streams="1" />
+				<int-kafka:topic id="apay_merchant" streams="1" />&lt;!&ndash;sh&ndash;&gt;
+				<int-kafka:topic id="apay_contract" streams="1" />&lt;!&ndash;合同&ndash;&gt;
+				<int-kafka:topic id="apay_childshop" streams="1" />&lt;!&ndash;微信子商户&ndash;&gt;
+				<int-kafka:topic id="apay_ticket_base_info" streams="1" />
+				<int-kafka:topic id="apay_ticket_channel_info" streams="1" />
+				<int-kafka:topic id="apay_transaction" streams="1" /> &lt;!&ndash;券码承兑信息 &ndash;&gt;
+			</int-kafka:consumer-configuration>
+		</int-kafka:consumer-configurations>
+	</int-kafka:consumer-context>-->
+	<!-- outbound-channel-adapter配置 -->
+	<int-kafka:outbound-channel-adapter id="kafkaOutboundChannelAdapter" kafka-producer-context-ref="kafkaProducerContext"
+										auto-startup="true" channel="outToKafka" >
+		<int:poller fixed-delay="1000" time-unit="MILLISECONDS" receive-timeout="0" task-executor="taskExecutor" />
+	</int-kafka:outbound-channel-adapter>
+	<!-- inbound-channel-adapter配置  -->
+	<!--<int-kafka:inbound-channel-adapter id="kafkaInboundChannelAdapter" kafka-consumer-context-ref="consumerContext"
+		auto-startup="true" channel="inputFromKafka">&lt;!&ndash; auto-startup属性设置轮询  &ndash;&gt;
+		<int:poller fixed-delay="10" time-unit="MILLISECONDS" max-messages-per-poll="5" />
+	</int-kafka:inbound-channel-adapter>-->
+
+	<!-- producerProperties配置 -->
+	<bean id="producerProperties"
+		  class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="topic.metadata.refresh.interval.ms">360000</prop>
+				<prop key="message.send.max.retries">5</prop>
+				<prop key="request.required.acks">1</prop>
+				<prop key="request.timeout.ms">20000</prop>
+				<prop key="send.buffer.bytes">10485760</prop>
+				<prop key="queue.buffering.max.ms">1000</prop>
+				<prop key="queue.buffering.max.messages">10000</prop>
+				<prop key="queue.enqueue.timeout.ms">-1</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- consumerProperties配置 -->
+	<!--<bean id="consumerProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="auto.commit.enable">true</prop>
+				<prop key="auto.commit.interval.ms">1000</prop>
+				<prop key="socket.receive.buffer.bytes">20971520</prop>&lt;!&ndash; 20M &ndash;&gt;
+				<prop key="fetch.message.max.bytes">20971520</prop>&lt;!&ndash; 20M &ndash;&gt;
+			</props>
+		</property>
+	</bean>-->
+
+	<bean id="kafkaEncoder" class="org.springframework.integration.kafka.serializer.avro.AvroReflectDatumBackedKafkaEncoder">
+        <constructor-arg value="java.lang.String" />
+    </bean>
+	<bean id="kafkaDecoder" class="org.springframework.integration.kafka.serializer.avro.AvroReflectDatumBackedKafkaDecoder">
+        <constructor-arg value="java.lang.String" />
+    </bean>
+	<!-- 配置producer分区处理类 -->
+	<bean id="kafka_partitioner" class="com.cn.service.impl.kafkaserviceimpl.KafkaPartitionerImpl" />
+	<!-- task线程池配置 -->
+	<task:executor id="taskExecutor" pool-size="5" keep-alive="120" queue-capacity="500"/>
+
+</beans>

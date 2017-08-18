@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						   http://www.springframework.org/schema/integration 
+						   http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+						   http://www.springframework.org/schema/task 
+						   http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <bean id="kafkaProducerService" class="com.cn.service.impl.kafkaserviceimpl.KafkaProducerServiceImpl">
+        <!--<property name="messageChannel" ref="outToKafka"></property>-->
+    </bean>
+    <!-- Consumer消息分解器 -->
+    <!--suppress SpringIntegrationModel -->
+    <!--<int:splitter input-channel="inputFromKafka" method="split" output-channel="kafkaConsumerMessageTransformerChannel" >
+    	<bean class="com.cn.service.impl.kafkaserviceimpl.KafkaConsumerMessageSplitterserviceImpl" />
+    	<int:poller fixed-delay="10" time-unit="MILLISECONDS" max-messages-per-poll="5" />
+    </int:splitter>-->
+    
+    <!-- 转换器通道 -->
+    <!--<int:channel id="kafkaConsumerMessageTransformerChannel" />-->
+    
+    <!-- 消息转换器 -->
+    <!--<int:transformer method="transformer"
+    	input-channel="kafkaConsumerMessageTransformerChannel"
+    	output-channel="kafkaConsumerMessageRouterChannel" >
+    	<bean class="com.cn.service.impl.kafkaserviceimpl.KafkaMessageTransformerserviceImpl" />
+    </int:transformer>-->
+    
+    <!-- 路由器通道 -->
+    <!--<int:channel id="kafkaConsumerMessageRouterChannel" ></int:channel>-->
+    
+    <!-- 业务消息路由器 -->
+    <!--<int:header-value-router id="kafkaConsumerMessageRouter" input-channel="kafkaConsumerMessageRouterChannel" header-name="kafka_topic"
+    	default-output-channel="logger">-->
+    	<!--<int:mapping value="apay_ticketnumber" channel="ticktnumberChannel" />
+        <int:mapping value="apay_wangdian" channel="wangdianChannel" />
+        <int:mapping value="apay_branch" channel="branchChannel" />
+        <int:mapping value="apay_ticketqvdao" channel="ticketqvdaoChannel" />
+        <int:mapping value="apay_merchant" channel="shopChannel" />
+        <int:mapping value="apay_ticket_base_info" channel="base" />&lt;!&ndash;商户&ndash;&gt;
+        <int:mapping value="apay_ticket_channel_info" channel="channel" />&lt;!&ndash;渠道&ndash;&gt;
+        <int:mapping value="apay_contract" channel="shopContract" />&lt;!&ndash;合同&ndash;&gt;
+        <int:mapping value="apay_childshop" channel="wxChildShop" />&lt;!&ndash;微信子商户&ndash;&gt;
+        <int:mapping value="apay_transaction" channel="ticketCodeInfo" />&lt;!&ndash;券码承兑信息 &ndash;&gt;-->
+    <!--</int:header-value-router>-->
+    
+    <!--&lt;!&ndash; 优惠券串码 &ndash;&gt;
+    <int:channel id="ticktnumberChannel"></int:channel>
+    &lt;!&ndash; 网店通道（包括商户） &ndash;&gt;
+    <int:channel id="wangdianChannel"></int:channel>
+    &lt;!&ndash; 分公司 &ndash;&gt;
+    <int:channel id="branchChannel"></int:channel>
+    &lt;!&ndash; 发劵渠道通道 &ndash;&gt;
+    <int:channel id="ticketqvdaoChannel"></int:channel>
+    &lt;!&ndash; 商户 &ndash;&gt;
+    <int:channel id="shopChannel"></int:channel>
+
+    <int:channel id="base"></int:channel>
+    <int:channel id="channel"></int:channel>
+    &lt;!&ndash;合同&ndash;&gt;
+    <int:channel id="shopContract"></int:channel>
+    &lt;!&ndash;微信子商户&ndash;&gt;
+    <int:channel id="wxChildShop"></int:channel>
+    &lt;!&ndash; 券码承兑信息&ndash;&gt;
+    <int:channel id="ticketCodeInfo"></int:channel>-->
+
+    <int:logging-channel-adapter id="logger" level="INFO" />
+
+</beans>
